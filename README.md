@@ -161,3 +161,86 @@ model = torch.nn.parallel.DistributedDataParallel(
     model, device_ids=[local_rank]
 )
 ```
+
+Pytorch will then:
+
+- launches separate processes
+
+- ets up communication groups
+
+- wraps your model
+
+- intercepts .backward()
+
+- performs NCCL AllReduce on gradients
+
+- ensures updates stay synchronized
+
+---
+
+## How Other Frameworks Use DDP Logic
+
+#### <ins>DeepSpeed</ins>
+
+- Implements “Zero Redundancy Optimizer”—an optimized extension of DDP:
+
+- sharded gradients
+
+- partitioned parameters
+
+- distributed optimizer states
+
+#### <ins>Horovod (Uber)</ins>
+
+- Uses MPI / NCCL for AllReduce:
+
+```python
+hvd.allreduce(gradient_tensor)
+```
+
+#### <ins>TensorFlow</ins> (Mirrored/MultiWorkerMirroredStrategy)
+
+- Uses ring-allreduce exactly like PyTorch DDP.
+
+#### <ins>Megatron-LM</ins>
+
+- Adds tensor model parallelism + pipeline parallelism on top of DDP.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Summary
+
+| Concept | Meaning |
+|---------|---------|
+| DDP | Distributed Data Parallel |
+| Purpose | Train model on many GPUs concurrently |
+| Main operations | Scatter data → local backprop → AllReduce gradients → sync weights |
+| Backends | NCCL (GPU), MPI, Gloo |
+| Usage | PyTorch, TensorFlow, DeepSpeed, Horovod |
+| Why important? | Enables training giant models efficiently |
