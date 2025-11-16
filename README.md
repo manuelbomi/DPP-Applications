@@ -83,18 +83,48 @@ GPU3 → 32 samples
 
 #### gradients are local and differ based on that particular GPU’s data shard
 
-4. AllReduce: average gradients across all GPUs
+<ins>4. AllReduce: average gradients across all GPUs</ins>
 
-This is the magic step.
 
-If 4 GPUs have gradients:
+#### If 4 GPUs have gradients:
+
+```python
+g0, g1, g2, g3
+```
+
+#### DDP computes:
+
+```python
+avg_grad = (g0 + g1 + g2 + g3) / 4
+```
+
+#### This uses:
+
+- NCCL (GPU → GPU communication)
+
+- or MPI
+
+- or Gloo
+
+<ins>5. Each GPU applies the same optimizer update</ins>
+
+#### Since the gradients are identical after averaging:
+
+```python
+GPU0 updates → gets same weights as GPU1 → same as GPU2 → same as GPU3
+```
+
+*All models remain synchronized.*
+
+The full step by step workflow of the DDP AI model training paradigm is shown belwo:
+
 
 ```python
        Data Shards         Local Backprop       AllReduce            Sync Update
 ┌────────────┐         ┌─────────────┐      ┌─────────────┐      ┌──────────────┐
-│ GPU0 batch │ → fwd/bwd → grad0 → ─┐       │              │      │              │
-│ GPU1 batch │ → fwd/bwd → grad1 → ─┼─ Avg →│ avg_grad ----┼─ Apply optimizer --> synced models
-│ GPU2 batch │ → fwd/bwd → grad2 → ─┼       │              │
+│ GPU0 batch │ → fwd/bwd → grad0 → ─┐       │             │      │              │
+│ GPU1 batch │ → fwd/bwd → grad1 → ─┼─ Avg →│ avg_grad ---┼─ Apply optimizer --> synced models
+│ GPU2 batch │ → fwd/bwd → grad2 → ─┼       │             │
 │ GPU3 batch │ → fwd/bwd → grad3 → ─┘       └─────────────┘
 
 ```
