@@ -128,3 +128,36 @@ The full step by step workflow of the DDP AI model training paradigm is shown be
 │ GPU3 batch │ → fwd/bwd → grad3 → ─┘       └─────────────┘
 
 ```
+
+---
+
+## Why DDP Is Fast
+
+#### DDP is faster than DataParallel for 3 reasons:
+
+✔ 1. No Python GIL bottleneck (each GPU = separate process)
+
+✔ 2. Communication overlaps with computation
+
+✔ 3. AllReduce is optimal on NVLink, PCIe, Infiniband
+
+#### This is why DDP is used in training GPT-4, LLaMA, DeepSeek, Mistral, etc.
+
+---
+
+## How PyTorch Uses DDP
+
+#### In PyTorch, we typically do:
+
+```python
+torchrun --nproc_per_node=4 train.py
+```
+
+#### Inside train.py
+
+```python
+model = MyModel().to(local_rank)
+model = torch.nn.parallel.DistributedDataParallel(
+    model, device_ids=[local_rank]
+)
+```
