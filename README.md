@@ -206,6 +206,21 @@ hvd.allreduce(gradient_tensor)
 
 - Adds tensor model parallelism + pipeline parallelism on top of DDP.
 
+---
+---
+
+project4/
+├─ README.md               # (if you choose to include Readme right from your desktop)
+├─ Makefile
+├─ run_local.sh            # convenience wrapper for mpirun
+├─ slurm_job.sh            # example SBATCH job for a single-node run (with GPU)
+├─ env_notes.md
+└─ src/
+   ├─ libkernels.cu       # CUDA C kernel + C API wrapper (builds libkernels.so)
+   ├─ ddp_from_scratch.py # python mpi4py training loop that recreates DDP
+   └─ kernels.h           # C header for the shared lib (optional)
+
+
 
 
 
