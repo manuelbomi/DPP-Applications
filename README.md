@@ -209,6 +209,11 @@ hvd.allreduce(gradient_tensor)
 ---
 ---
 
+## Project Structure
+
+
+```python
+
 project4/
 ├─ README.md               # (if you choose to include Readme right from your desktop)
 ├─ Makefile
@@ -219,6 +224,8 @@ project4/
    ├─ libkernels.cu       # CUDA C kernel + C API wrapper (builds libkernels.so)
    ├─ ddp_from_scratch.py # python mpi4py training loop that recreates DDP
    └─ kernels.h           # C header for the shared lib (optional)
+
+```
 
 
 
